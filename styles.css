@@ -1,62 +1,47 @@
-body { margin: 0; padding: 0; background: #000; font-family: 'Inter', sans-serif; user-select: none; }
-canvas { display: block; image-rendering: pixelated; }
+:root {
+    --indigo: #6366f1;
+}
+
+body {
+    cursor: url('https://cur.cursors-4u.net/games/gam-4/gam372.cur'), auto;
+}
+
 .font-pixel { font-family: 'Press Start 2P', cursive; }
 
 .skill-slot {
-    position: relative;
-    width: 54px;
-    height: 54px;
-    cursor: pointer;
-    transition: transform 0.1s;
+    @apply relative w-14 h-14 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center cursor-pointer overflow-hidden transition-all hover:scale-110 hover:border-indigo-500/50;
 }
-.skill-slot:active { transform: scale(0.9); }
-.skill-slot .icon {
-    width: 100%;
-    height: 100%;
-    border-radius: 12px;
-    display: flex;
-    items-center;
-    justify-center;
-    font-size: 24px;
-    border: 2px solid rgba(255,255,255,0.2);
+.skill-icon { @apply text-2xl filter drop-shadow-lg; }
+.skill-slot .cooldown {
+    @apply absolute bottom-0 left-0 w-full h-0 bg-indigo-600/60 transition-all duration-100;
 }
-.skill-slot .key {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #000;
-    color: #fff;
-    font-size: 8px;
-    font-family: 'Press Start 2P';
-    padding: 2px 4px;
-    border: 1px solid #fff;
-    border-radius: 4px;
-}
-.cooldown-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 0%;
-    background: rgba(0,0,0,0.7);
-    border-radius: 10px;
-    transition: height 0.1s linear;
+.key-hint {
+    @apply absolute top-1 right-1 text-[7px] font-pixel text-white/40;
 }
 
-#chat::-webkit-scrollbar { width: 3px; }
-#chat::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
-
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+.equip-slot {
+    @apply aspect-square bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-[8px] font-pixel text-white/20 hover:border-indigo-500/50 cursor-pointer;
 }
 
-.damage-num {
+.inv-item {
+    @apply aspect-square bg-white/5 border border-white/5 rounded-xl flex items-center justify-center cursor-pointer transition-all hover:bg-white/10 hover:border-indigo-500/30;
+}
+
+#inv-grid::-webkit-scrollbar { width: 6px; }
+#inv-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+/* Cinematic vignette */
+#game-view::after {
+    content: '';
     position: absolute;
-    color: #ff4444;
-    font-family: 'Press Start 2P';
-    font-size: 10px;
+    inset: 0;
     pointer-events: none;
-    z-index: 1000;
-    text-shadow: 2px 2px #000;
+    box-shadow: inset 0 0 200px rgba(0,0,0,0.8);
+    z-index: 10;
 }
+
+@keyframes item-glow {
+    0%, 100% { filter: drop-shadow(0 0 5px rgba(99, 102, 241, 0.5)); }
+    50% { filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.8)); }
+}
+.rarity-epic { animation: item-glow 2s infinite; border-color: #a855f7 !important; }

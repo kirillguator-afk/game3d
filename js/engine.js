@@ -7,41 +7,36 @@ class AetheriaEngine {
             resolution: window.devicePixelRatio || 1
         });
         document.getElementById('game-view').appendChild(this.app.view);
-        
+        PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.NEAREST;
+
         this.layers = {
             world: new PIXI.Container(),
             entities: new PIXI.Container(),
+            vfx: new PIXI.Container(),
             lighting: new PIXI.Container()
         };
         Object.values(this.layers).forEach(l => this.app.stage.addChild(l));
 
         this.allEntities = [];
-        this.time = 0;
-        this.questData = { kills: 0, target: 5 };
-
-        this.setupLighting();
         this.init();
     }
 
-    setupLighting() {
+    async init() {
+        this.controls = new ControlsManager();
+        this.inventory = new InventorySystem();
+        this.world = new WorldManager(this);
+        
+        this.player = new Player(this, "NEXUS PRIME");
+        this.spawnEntity(this.player);
+        this.player.updateAppearance(this.inventory.equipment);
+
+        // Lighting
         this.darkness = new PIXI.Graphics();
-        this.darkness.beginFill(0x0a0a2a);
-        this.darkness.drawRect(-10000, -10000, 20000, 20000);
-        this.darkness.endFill();
+        this.darkness.beginFill(0x0a0a20, 0.4).drawRect(-10000, -10000, 20000, 20000).endFill();
         this.layers.lighting.addChild(this.darkness);
         this.layers.lighting.blendMode = PIXI.BLEND_MODES.MULTIPLY;
-    }
 
-    addLight(x, y, color, intensity) {
-        const light = new PIXI.Graphics();
-        light.beginFill(color, 0.4);
-        light.drawCircle(0, 0, 150 * intensity);
-        light.endFill();
-        light.filters = [new PIXI.BlurFilter(40)];
-        light.position.set(x, y);
-        light.blendMode = PIXI.BLEND_MODES.ADD;
-        this.layers.lighting.addChild(light);
-        return light;
+        this.app.ticker.add((delta) => this.update(delta));
     }
 
     spawnEntity(entity) {
@@ -51,52 +46,48 @@ class AetheriaEngine {
 
     removeEntity(entity) {
         const idx = this.allEntities.indexOf(entity);
-        if(idx > -1) {
-            this.allEntities.splice(idx, 1);
-            this.layers.entities.removeChild(entity.container);
-        }
+        if(idx > -1) this.allEntities.splice(idx, 1);
+        this.layers.entities.removeChild(entity.container);
     }
 
-    init() {
-        this.controls = new ControlsManager();
-        this.world = new WorldManager(this);
-        
-        this.player = new Player(this, "NEXUS");
-        this.spawnEntity(this.player);
-
-        // Spawn Quest Enemies at the South Breach
-        for(let i=0; i<8; i++) {
-            this.spawnEntity(new Enemy(this, "Shadow Slime", (Math.random()-0.5)*500, 1500 + Math.random()*500));
+    spawnParticles(x, y, color) {
+        for(let i=0; i<10; i++) {
+            const p = new PIXI.Graphics();
+            p.beginFill(color).drawCircle(0, 0, 3).endFill();
+            p.position.set(x, y);
+            const vx = (Math.random()-0.5)*10;
+            const vy = (Math.random()-0.5)*10;
+            this.layers.vfx.addChild(p);
+            
+            let life = 30;
+            const anim = () => {
+                p.x += vx; p.y += vy;
+                p.alpha -= 0.05;
+                life--;
+                if(life > 0) requestAnimationFrame(anim);
+                else this.layers.vfx.removeChild(p);
+            };
+            anim();
         }
-
-        this.app.ticker.add((delta) => this.update(delta));
     }
 
     update(delta) {
-        this.time += delta;
-        
-        // Day/Night tint
-        const nightIntensity = (Math.sin(this.time * 0.0005) + 1) / 2;
-        this.darkness.alpha = 0.2 + (nightIntensity * 0.6);
+        this.allEntities.forEach(e => e.update(this.controls, delta));
 
-        this.allEntities.forEach(e => e.update(this.controls ? this.controls : null, delta));
+        // Camera Smooth Follow
+        const lerp = 0.1;
+        const targetX = -this.player.container.x + window.innerWidth / 2;
+        const targetY = -this.player.container.y + window.innerHeight / 2;
+        this.app.stage.pivot.x += (-targetX - this.app.stage.pivot.x) * lerp;
+        this.app.stage.pivot.y += (-targetY - this.app.stage.pivot.y) * lerp;
 
-        // Camera
-        const ease = 0.1;
-        this.app.stage.pivot.x += (this.player.container.x - window.innerWidth/2 - this.app.stage.pivot.x) * ease;
-        this.app.stage.pivot.y += (this.player.container.y - window.innerHeight/2 - this.app.stage.pivot.y) * ease;
-
+        // Sorting
         this.layers.entities.children.sort((a, b) => a.y - b.y);
-    }
 
-    updateQuestUI() {
-        const prog = document.getElementById('quest-progress');
-        prog.innerText = `Прогресс: ${this.questData.kills}/${this.questData.target}`;
-        if(this.questData.kills >= this.questData.target) {
-            prog.innerText = "КВЕСТ ВЫПОЛНЕН!";
-            prog.classList.add('text-yellow-400', 'animate-bounce');
-        }
+        // Biome detection
+        const biome = this.world.getCurrentBiome(this.player.container.x, this.player.container.y);
+        document.getElementById('biome-label').innerText = biome.name;
     }
 }
 
-const engine = new AetheriaEngine();
+window.engine = new AetheriaEngine();

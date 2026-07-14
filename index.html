@@ -3,89 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aetheria: Age of Magic</title>
+    <title>Aetheria: Global Ascension</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
 </head>
-<body class="bg-black overflow-hidden">
+<body class="bg-[#050508] overflow-hidden">
     <div id="game-view" class="absolute inset-0"></div>
 
     <!-- UI Overlay -->
-    <div id="hud" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 z-50">
-        <!-- TOP: Player & Status -->
+    <div id="hud" class="absolute inset-0 pointer-events-none z-50 flex flex-col justify-between p-4 sm:p-8">
+        
+        <!-- TOP: Player Info -->
         <div class="flex justify-between items-start pointer-events-auto">
-            <div class="flex gap-4 items-center bg-black/80 backdrop-blur-md p-4 rounded-2xl border-2 border-indigo-500/50">
+            <div class="group relative flex gap-4 items-center bg-black/60 backdrop-blur-xl p-4 rounded-3xl border border-white/10 shadow-2xl transition-all hover:border-indigo-500/50">
                 <div class="relative">
-                    <div id="player-avatar" class="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl flex items-center justify-center border-2 border-white/30 shadow-lg">
-                        <span class="text-white font-pixel text-2xl">N</span>
-                    </div>
+                    <canvas id="ui-character-preview" width="64" height="64" class="w-16 h-16 bg-gradient-to-t from-indigo-900 to-black rounded-2xl border-2 border-indigo-400/30"></canvas>
+                    <div class="absolute -bottom-2 -right-2 bg-indigo-600 text-[8px] font-pixel px-2 py-1 rounded-full border border-black text-white">LV.42</div>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <span class="text-white font-pixel text-[12px] flex items-center gap-2">
-                        NEXUS_PRIME 
-                        <span class="text-indigo-400 text-[8px]">[MAGE]</span>
-                    </span>
-                    <div class="w-56 h-4 bg-gray-900 rounded-full border border-white/10 p-[2px] relative overflow-hidden">
-                        <div id="hp-bar" class="h-full bg-gradient-to-r from-red-600 to-rose-500 rounded-full transition-all duration-300 w-full"></div>
-                        <span class="absolute inset-0 flex justify-center items-center text-[8px] font-pixel text-white">HP: 100/100</span>
+                    <div class="flex items-center gap-3">
+                        <span class="text-white font-black tracking-tighter text-lg uppercase italic">Nexus Prime</span>
+                        <span class="text-[9px] bg-white/10 px-2 py-0.5 rounded text-indigo-300 font-bold tracking-widest uppercase">Arch-Mage</span>
                     </div>
-                    <div class="w-48 h-3 bg-gray-900 rounded-full border border-white/10 p-[2px] relative overflow-hidden">
-                        <div id="mp-bar" class="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full transition-all duration-300 w-full"></div>
-                        <span class="absolute inset-0 flex justify-center items-center text-[8px] font-pixel text-white">MP: 50/50</span>
+                    <div class="space-y-1.5">
+                        <div class="w-48 h-3 bg-black/50 rounded-full border border-white/5 overflow-hidden p-[1.5px]">
+                            <div id="hp-bar" class="h-full bg-gradient-to-r from-red-600 via-rose-500 to-orange-500 rounded-full w-full transition-all duration-500 shadow-[0_0_10px_rgba(244,63,94,0.5)]"></div>
+                        </div>
+                        <div class="w-40 h-2 bg-black/50 rounded-full border border-white/5 overflow-hidden p-[1px]">
+                            <div id="mp-bar" class="h-full bg-gradient-to-r from-indigo-600 to-cyan-400 rounded-full w-full transition-all duration-500 shadow-[0_0_10px_rgba(79,70,229,0.5)]"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <!-- Quest Tracker -->
-            <div id="quest-log" class="bg-black/70 backdrop-blur-md p-4 rounded-xl border-l-4 border-yellow-500 max-w-[250px]">
-                <h3 class="text-yellow-500 font-pixel text-[10px] mb-2">ТЕКУЩИЙ КВЕСТ</h3>
-                <div id="quest-title" class="text-white font-bold text-xs mb-1">Первая Искра</div>
-                <div id="quest-desc" class="text-gray-400 text-[10px]">Убейте 5 Теневых Слизней на южных окраинах.</div>
-                <div id="quest-progress" class="mt-2 text-[9px] text-green-400 font-pixel">Прогресс: 0/5</div>
+
+            <!-- Compass & Biome -->
+            <div class="flex flex-col items-end gap-3">
+                <div class="bg-black/60 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10 text-right">
+                    <div id="biome-label" class="text-indigo-400 font-pixel text-[8px] uppercase tracking-tighter mb-1">Aetheria Capital</div>
+                    <div id="clock-label" class="text-white font-pixel text-[10px]">12:00 PM</div>
+                </div>
+                <button id="inventory-toggle" class="bg-indigo-600 hover:bg-indigo-500 text-white p-4 rounded-2xl shadow-xl border border-white/20 transition-transform active:scale-90">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+                </button>
             </div>
         </div>
 
-        <!-- BOTTOM: Action Bar & Skills -->
-        <div class="flex flex-col items-center gap-4 pointer-events-auto">
-            <div class="flex gap-3 bg-black/90 p-3 rounded-2xl border-2 border-white/10 backdrop-blur-xl mb-4">
-                <div id="skill-q" class="skill-slot group" data-key="Q">
-                    <div class="icon bg-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.5)]">🔥</div>
-                    <span class="key">Q</span>
-                    <div class="cooldown-overlay"></div>
-                </div>
-                <div id="skill-e" class="skill-slot group" data-key="E">
-                    <div class="icon bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]">⚡</div>
-                    <span class="key">E</span>
-                    <div class="cooldown-overlay"></div>
-                </div>
-                <div id="skill-r" class="skill-slot group" data-key="R">
-                    <div class="icon bg-purple-600 shadow-[0_0_15px_rgba(147,51,234,0.5)]">🔯</div>
-                    <span class="key">R</span>
-                    <div class="cooldown-overlay"></div>
-                </div>
-                <div id="skill-space" class="skill-slot group w-24" data-key="SPACE">
-                    <div class="icon bg-emerald-500">DASH</div>
-                    <span class="key">_</span>
-                    <div class="cooldown-overlay"></div>
-                </div>
-            </div>
-            
-            <!-- Chat -->
-            <div class="w-full max-w-lg">
-                <div id="chat" class="h-32 bg-black/40 backdrop-blur-md rounded-t-xl p-3 text-[11px] overflow-y-auto flex flex-col gap-1 border-x border-t border-white/10">
-                    <div class="text-indigo-400">[SYSTEM] Добро пожаловать, Маг Этерии! Используйте Q для атаки.</div>
-                </div>
-                <input type="text" placeholder="Нажмите ENTER для чата..." class="w-full bg-black/80 border-x border-b border-white/10 rounded-b-xl px-4 py-2 text-white text-xs outline-none focus:border-indigo-500">
+        <!-- MIDDLE: Quest & Damage Numbers (JS Managed) -->
+        <div id="damage-container" class="absolute inset-0 pointer-events-none"></div>
+
+        <!-- BOTTOM: Action Bar -->
+        <div class="flex flex-col items-center gap-6 pointer-events-auto">
+            <div id="action-bar" class="flex gap-4 bg-black/80 backdrop-blur-2xl p-4 rounded-[2.5rem] border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+                <div class="skill-slot" data-skill="Q"><div class="skill-icon">🔥</div><div class="cooldown"></div><span class="key-hint">Q</span></div>
+                <div class="skill-slot" data-skill="E"><div class="skill-icon">⚡</div><div class="cooldown"></div><span class="key-hint">E</span></div>
+                <div class="skill-slot" data-skill="R"><div class="skill-icon">❄️</div><div class="cooldown"></div><span class="key-hint">R</span></div>
+                <div class="h-12 w-px bg-white/10 mx-2"></div>
+                <div class="skill-slot w-24" data-skill="SPACE"><div class="skill-icon text-xs">DASH</div><div class="cooldown"></div><span class="key-hint">_</span></div>
             </div>
         </div>
     </div>
 
-    <!-- Screen Effects -->
-    <div id="damage-vignette" class="fixed inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(255,0,0,0)] transition-shadow duration-300 z-[100]"></div>
+    <!-- Inventory Modal -->
+    <div id="inv-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-3xl hidden flex items-center justify-center p-8">
+        <div class="w-full max-w-5xl grid grid-cols-12 gap-8">
+            <!-- Left: Character Stats & Equip -->
+            <div class="col-span-4 space-y-6">
+                <div class="bg-white/5 border border-white/10 rounded-3xl p-8 flex flex-col items-center">
+                    <div class="w-48 h-64 bg-black/40 rounded-2xl mb-6 relative overflow-hidden flex items-center justify-center border-2 border-indigo-500/20">
+                        <canvas id="inv-char-preview" width="128" height="192" class="w-full h-full"></canvas>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 w-full" id="equip-slots">
+                        <div class="equip-slot" data-slot="head">HEAD</div>
+                        <div class="equip-slot" data-slot="body">BODY</div>
+                        <div class="equip-slot" data-slot="weapon">WEAPON</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Right: Inventory Grid -->
+            <div class="col-span-8 flex flex-col bg-white/5 border border-white/10 rounded-3xl p-8">
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-pixel text-white tracking-tighter">Inventory</h2>
+                    <button id="close-inv" class="text-white/40 hover:text-white text-5xl leading-none">&times;</button>
+                </div>
+                <div id="inv-grid" class="grid grid-cols-6 gap-3 flex-grow overflow-y-auto pr-4">
+                    <!-- Items injected by JS -->
+                </div>
+                <div class="mt-8 pt-8 border-t border-white/10 flex justify-between items-center">
+                    <div class="text-yellow-500 font-pixel text-xl">14,250 <span class="text-[10px] opacity-50">GOLD</span></div>
+                    <div class="flex gap-4">
+                        <button class="px-6 py-3 bg-white/10 rounded-xl text-white font-bold hover:bg-white/20 transition">Sort</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="js/controls.js"></script>
+    <script src="js/inventory.js"></script>
     <script src="js/entities.js"></script>
     <script src="js/world.js"></script>
     <script src="js/engine.js"></script>
