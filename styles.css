@@ -4,37 +4,31 @@
     --pixel-border: inset 0 0 0 2px rgba(255,255,255,0.1), 4px 4px 0 rgba(0,0,0,0.4);
 }
 
-@font-face {
-    font-family: 'Pixel';
-    src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
-}
-
 body {
     background: #050508;
     margin: 0;
     overflow: hidden;
     image-rendering: pixelated;
+    font-family: 'Press Start 2P', cursive;
 }
 
 .font-pixel { font-family: 'Press Start 2P', cursive; }
 
-/* Global Retro Effect */
-#game-view::before {
-    content: " ";
-    display: block;
+#game-view::after {
+    content: "";
     position: absolute;
-    top: 0; left: 0; bottom: 0; right: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-    z-index: 100;
-    background-size: 100% 3px, 3px 100%;
+    inset: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+    background-size: 100% 4px, 4px 100%;
     pointer-events: none;
+    z-index: 100;
 }
 
 #hud { text-shadow: 2px 2px 0px #000; }
 
 .skill-slot {
-    @apply relative w-16 h-16 bg-black/60 rounded-none border-2 border-white/20 flex items-center justify-center cursor-pointer overflow-hidden transition-all;
+    @apply relative w-16 h-16 bg-black/60 border-2 border-white/20 flex items-center justify-center cursor-pointer transition-all;
     box-shadow: var(--pixel-border);
 }
 
@@ -43,43 +37,23 @@ body {
     transform: translateY(-4px);
 }
 
-.skill-icon { @apply text-3xl; image-rendering: pixelated; }
-
 .skill-slot .cooldown {
-    @apply absolute bottom-0 left-0 w-full h-0 bg-indigo-500/60 transition-none;
+    @apply absolute bottom-0 left-0 w-full h-0 bg-indigo-500/60;
 }
 
-#hp-bar, #mp-bar {
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Inventory Styling */
-#inv-modal {
-    background: rgba(5, 5, 10, 0.95);
-}
+#hp-bar, #mp-bar { transition: width 0.3s ease; }
 
 .inv-item {
-    @apply aspect-square bg-white/5 border-2 border-white/10 rounded-none flex items-center justify-center cursor-pointer transition-all;
-    box-shadow: var(--pixel-border);
-}
-
-.inv-item:hover {
-    @apply bg-white/20 border-white/40;
+    @apply aspect-square bg-white/5 border-2 border-white/10 flex items-center justify-center cursor-pointer transition-all;
 }
 
 .equip-slot {
-    @apply aspect-square bg-black/40 border-2 border-white/10 rounded-none flex items-center justify-center text-[8px] font-pixel text-white/40 cursor-pointer;
+    @apply aspect-square bg-black/40 border-2 border-white/10 flex items-center justify-center text-[8px] text-white/40;
 }
 
-@keyframes float {
+@keyframes bounce {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-5px); }
 }
 
-.rarity-epic { border-color: #a855f7 !important; animation: float 3s infinite ease-in-out; }
-.rarity-legendary { border-color: #f59e0b !important; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
-
-/* Custom Scrollbar */
-#inv-grid::-webkit-scrollbar { width: 8px; }
-#inv-grid::-webkit-scrollbar-track { background: #111; }
-#inv-grid::-webkit-scrollbar-thumb { background: #333; border: 2px solid #111; }
+.animate-bounce { animation: bounce 0.8s infinite; }

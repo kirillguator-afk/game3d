@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aetheria: Pixel Ascension</title>
+    <title>Aetheria: World Expansion</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
     <link rel="stylesheet" href="styles.css">
@@ -49,6 +49,12 @@
             </div>
         </div>
 
+        <!-- Interaction Prompt -->
+        <div id="interaction-prompt" class="hidden absolute left-1/2 bottom-32 -translate-x-1/2 flex flex-col items-center gap-2 pointer-events-none">
+            <div class="bg-white text-black px-3 py-1 font-pixel text-[10px] animate-bounce">PRESS [F]</div>
+            <div id="interaction-text" class="bg-black/90 text-white px-4 py-2 border-2 border-indigo-500 font-pixel text-[8px]">TALK TO MERCHANT</div>
+        </div>
+
         <!-- BOTTOM: Action Bar -->
         <div class="flex flex-col items-center gap-6 pointer-events-auto pb-4">
             <div id="action-bar" class="flex gap-4 bg-black/90 p-3 border-t-4 border-indigo-900/50">
@@ -57,6 +63,20 @@
                 <div class="skill-slot" data-skill="R"><div class="skill-icon">❄️</div><div class="cooldown"></div><span class="key-hint">R</span></div>
                 <div class="w-px bg-white/10 mx-2"></div>
                 <div class="skill-slot w-24" data-skill="SPACE"><div class="skill-icon text-[10px] font-pixel">DASH</div><div class="cooldown"></div><span class="key-hint">_</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dialogue / Shop Overlay -->
+    <div id="dialogue-overlay" class="fixed inset-0 z-[110] hidden flex items-end justify-center p-12 bg-black/20 backdrop-blur-sm">
+        <div class="w-full max-w-4xl bg-black border-4 border-indigo-600 p-8 flex gap-8">
+            <div id="npc-portrait" class="w-32 h-32 bg-indigo-900/30 border-2 border-indigo-400 flex items-center justify-center text-5xl">👤</div>
+            <div class="flex-grow">
+                <div id="npc-name" class="text-indigo-400 font-pixel text-xs mb-4">NAME</div>
+                <div id="npc-text" class="text-white font-pixel text-sm leading-relaxed mb-8">...</div>
+                <div id="dialogue-options" class="flex flex-wrap gap-4">
+                    <!-- Options injected here -->
+                </div>
             </div>
         </div>
     </div>
