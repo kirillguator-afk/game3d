@@ -1,0 +1,48 @@
+:root {
+    --primary: #10b981;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.font-game {
+    font-family: 'Orbitron', sans-serif;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+#game-container canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.pot-label {
+    position: absolute;
+    color: white;
+    background: rgba(0,0,0,0.5);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    pointer-events: none;
+}
+
+@keyframes grow {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+.shop-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255,255,255,0.1);
+    transition: all 0.3s ease;
+}
+
+.shop-card:active {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: var(--primary);
+}
