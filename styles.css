@@ -1,48 +1,42 @@
-:root {
-    --primary: #10b981;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 body {
+    background-color: #000;
     font-family: 'Inter', sans-serif;
-    -webkit-tap-highlight-color: transparent;
 }
 
-.font-game {
-    font-family: 'Orbitron', sans-serif;
+.font-pixel {
+    font-family: 'Press Start 2P', cursive;
 }
 
-.no-scrollbar::-webkit-scrollbar {
-    display: none;
+canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 }
 
-#game-container canvas {
-    display: block;
-    width: 100% !important;
-    height: 100% !important;
+/* Custom Scrollbar for Chat */
+#chat-box::-webkit-scrollbar {
+    width: 4px;
 }
-
-.pot-label {
-    position: absolute;
-    color: white;
-    background: rgba(0,0,0,0.5);
-    padding: 2px 8px;
+#chat-box::-webkit-scrollbar-track {
+    background: transparent;
+}
+#chat-box::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
     border-radius: 10px;
-    font-size: 10px;
-    pointer-events: none;
 }
 
-@keyframes grow {
-    from { transform: scale(0); }
-    to { transform: scale(1); }
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0px); }
 }
 
-.shop-card {
-    background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
-    border: 1px solid rgba(255,255,255,0.1);
-    transition: all 0.3s ease;
-}
-
-.shop-card:active {
-    background: rgba(16, 185, 129, 0.2);
-    border-color: var(--primary);
+.entity-label {
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.8);
+    animation: float 2s ease-in-out infinite;
 }

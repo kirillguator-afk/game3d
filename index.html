@@ -3,76 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Green Tycoon 3D | Nexus Prime</title>
+    <title>Aetheria Online | Pixel MMO</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;500;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;900&display=swap" rel="stylesheet">
 </head>
-<body class="bg-black overflow-hidden select-none">
-    <!-- 3D Canvas Container -->
-    <div id="game-container" class="absolute inset-0 z-0"></div>
+<body class="bg-[#0a0a0c] overflow-hidden">
+    <!-- Game Canvas -->
+    <div id="game-view" class="absolute inset-0"></div>
 
-    <!-- UI Overlay -->
-    <div id="ui-layer" class="absolute inset-0 pointer-events-none z-10 flex flex-col justify-between p-4">
-        <!-- Top Bar: Stats -->
+    <!-- MMORPG UI HUD -->
+    <div id="hud" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-6">
+        <!-- Top Bar: Player Stats -->
         <div class="flex justify-between items-start pointer-events-auto">
-            <div class="bg-black/60 backdrop-blur-md border border-green-500/30 p-3 rounded-2xl shadow-lg">
-                <div class="text-xs text-green-400 font-bold uppercase tracking-widest">Капитал</div>
-                <div id="money-display" class="text-2xl font-black text-white">$0</div>
+            <div class="flex gap-4 items-center bg-black/40 backdrop-blur-md p-2 pr-6 rounded-lg border-l-4 border-red-500">
+                <div class="w-12 h-12 bg-gray-800 rounded border-2 border-white/20 overflow-hidden">
+                    <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Felix" alt="Avatar">
+                </div>
+                <div>
+                    <div class="text-[10px] text-white/50 font-bold uppercase tracking-tighter">Level 42 Arcanist</div>
+                    <div class="text-white font-pixel text-xs">Nexus_Prime</div>
+                    <div class="w-32 h-2 bg-gray-900 mt-1 rounded-full overflow-hidden border border-white/10">
+                        <div class="h-full bg-gradient-to-r from-red-600 to-orange-500 w-[80%]"></div>
+                    </div>
+                </div>
             </div>
-            <div class="flex flex-col gap-2">
-                <div class="bg-black/60 backdrop-blur-md border border-blue-500/30 p-3 rounded-2xl text-right">
-                    <div class="text-[10px] text-blue-400 font-bold uppercase">Уровень фермы</div>
-                    <div id="lvl-display" class="text-lg font-bold text-white">LVL 1</div>
+
+            <div class="bg-black/40 backdrop-blur-md p-3 rounded-lg border border-white/10">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-[10px] text-white font-bold uppercase tracking-widest">Server: EU-CENTRAL-1</span>
                 </div>
             </div>
         </div>
 
-        <!-- Center: Interaction Prompts -->
-        <div id="interaction-prompt" class="hidden flex justify-center items-center">
-            <div class="bg-white/10 backdrop-blur-xl px-6 py-3 rounded-full border border-white/20 animate-bounce">
-                <span id="prompt-text" class="text-white font-bold uppercase tracking-tighter">Нажмите, чтобы посадить</span>
+        <!-- Chat System -->
+        <div class="flex flex-col gap-2 w-80 pointer-events-auto">
+            <div id="chat-box" class="h-40 bg-black/30 backdrop-blur-sm rounded-lg p-3 overflow-y-auto flex flex-col gap-1 border border-white/5 text-[11px]">
+                <div class="text-blue-400 font-bold">[Global] System: Welcome to Aetheria Online!</div>
+                <div class="text-purple-400"><span class="font-bold">Admin:</span> New boss spawned at Crystal Lake!</div>
+                <div class="text-white"><span class="font-bold text-gray-400">Player_1:</span> Anyone for dungeon?</div>
             </div>
-        </div>
-
-        <!-- Bottom Bar: Navigation & Shop -->
-        <div class="flex flex-col gap-4 pointer-events-auto">
-            <div id="inventory-bar" class="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
-                <!-- Семена будут тут -->
-            </div>
-            
-            <div class="bg-black/80 backdrop-blur-2xl border-t border-green-500/50 p-4 rounded-3xl flex justify-around items-center shadow-2xl">
-                <button id="shop-btn" class="flex flex-col items-center group">
-                    <div class="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center group-active:scale-90 transition shadow-inner">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                    </div>
-                    <span class="text-[10px] text-green-400 mt-1 font-bold">МАГАЗИН</span>
-                </button>
-                <div class="h-10 w-px bg-gray-700"></div>
-                <button id="prestige-btn" class="flex flex-col items-center opacity-50">
-                    <div class="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    </div>
-                    <span class="text-[10px] text-purple-400 mt-1 font-bold">UPGRADE</span>
-                </button>
-            </div>
+            <input type="text" placeholder="Press Enter to chat..." class="bg-black/60 border border-white/10 rounded-lg px-4 py-2 text-white text-xs outline-none focus:border-blue-500/50 transition-all">
         </div>
     </div>
 
-    <!-- Shop Modal -->
-    <div id="shop-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl hidden flex-col p-6">
-        <div class="flex justify-between items-center mb-8">
-            <h2 class="text-3xl font-black text-green-500 italic">СЕМЕНА</h2>
-            <button id="close-shop" class="text-white text-4xl">&times;</button>
-        </div>
-        <div class="grid grid-cols-1 gap-4 overflow-y-auto" id="shop-items">
-            <!-- Items injected by JS -->
-        </div>
-    </div>
-
-    <script src="js/logic.js"></script>
+    <script src="js/world.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/controls.js"></script>
     <script src="js/engine.js"></script>
-    <script src="js/ui.js"></script>
 </body>
 </html>
