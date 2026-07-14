@@ -4,75 +4,103 @@ class AetheriaEngine {
             resizeTo: window,
             backgroundColor: 0x0a0a0f,
             antialias: false,
+            autoDensity: true,
             resolution: window.devicePixelRatio || 1
         });
         document.getElementById('game-view').appendChild(this.app.view);
-        PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.NEAREST;
-
+        
+        // Layers
         this.layers = {
+            background: new PIXI.Container(),
             world: new PIXI.Container(),
             entities: new PIXI.Container(),
+            weather: new PIXI.Container(),
             lighting: new PIXI.Container()
         };
 
-        // Dark Overlay for lighting effect
-        this.ambientLight = new PIXI.Graphics();
-        this.ambientLight.beginFill(0x000000, 0.7);
-        this.ambientLight.drawRect(-5000, -5000, 10000, 10000);
-        this.ambientLight.endFill();
-        
-        this.layers.lighting.blendMode = PIXI.BLEND_MODES.ADD;
-        this.layers.lighting.addChild(this.ambientLight); // This acts as base darkness
-
         Object.values(this.layers).forEach(l => this.app.stage.addChild(l));
-
+        
+        // Day/Night Cycle State
+        this.time = 0; 
+        this.dayDuration = 10000; 
+        
+        this.setupLighting();
         this.init();
     }
 
-    addLight(x, y, color, radius) {
+    setupLighting() {
+        this.darkness = new PIXI.Graphics();
+        this.darkness.beginFill(0x05051a);
+        this.darkness.drawRect(-10000, -10000, 20000, 20000);
+        this.darkness.endFill();
+        this.darkness.alpha = 0;
+        
+        this.layers.lighting.addChild(this.darkness);
+        this.layers.lighting.blendMode = PIXI.BLEND_MODES.MULTIPLY;
+    }
+
+    addLight(x, y, color, intensity) {
         const light = new PIXI.Graphics();
-        const blur = new PIXI.BlurFilter(30);
-        light.beginFill(color, 0.3);
-        light.drawCircle(0, 0, 60 * radius);
+        light.beginFill(color, 0.4);
+        light.drawCircle(0, 0, 150 * intensity);
         light.endFill();
-        light.filters = [blur];
+        light.filters = [new PIXI.BlurFilter(50)];
         light.position.set(x, y);
-        this.layers.lighting.addChild(light);
+        light.blendMode = PIXI.BLEND_MODES.ADD;
+        this.layers.entities.addChild(light); // Lights live in entity world
         return light;
+    }
+
+    spawnEntity(entity) {
+        this.layers.entities.addChild(entity.container);
+        if(!this.allEntities) this.allEntities = [];
+        this.allEntities.push(entity);
     }
 
     init() {
         this.controls = new ControlsManager();
         this.world = new WorldManager(this);
         
-        this.player = new Player(this, "NEXUS_PRIME", 0x3366ff);
-        this.layers.entities.addChild(this.player.container);
+        this.player = new Player(this, "NEXUS_PRIME");
+        this.spawnEntity(this.player);
 
-        this.npcs = [
-            new Npc(this, "Elder Kaelen", -120, -50),
-            new Npc(this, "Merchant", 100, 80)
-        ];
-        this.npcs.forEach(n => this.layers.entities.addChild(n.container));
+        // Добавляем ключевых NPC
+        const king = new Npc(this, "King Aetherion", 0, -150, 0xffd700);
+        this.spawnEntity(king);
 
         this.app.ticker.add((delta) => this.update(delta));
     }
 
     update(delta) {
-        this.player.update(this.controls, delta);
-        this.npcs.forEach(n => n.update());
+        this.time += delta;
+        
+        // Update All Entities
+        if(this.allEntities) {
+            this.allEntities.forEach(e => {
+                if(e instanceof Player) e.update(this.controls, delta);
+                else e.update(delta);
+            });
+        }
 
-        // Camera Lerp
-        const lerp = 0.1;
+        // Day/Night Logic
+        const cycle = (Math.sin(this.time * 0.001) + 1) / 2;
+        this.darkness.alpha = cycle * 0.8;
+        
+        // Camera System
         const targetX = -this.player.container.x + window.innerWidth / 2;
         const targetY = -this.player.container.y + window.innerHeight / 2;
         
-        this.app.stage.pivot.x += (-targetX - this.app.stage.pivot.x) * lerp;
-        this.app.stage.pivot.y += (-targetY - this.app.stage.pivot.y) * lerp;
+        const ease = 0.08;
+        this.app.stage.pivot.x += (-targetX - this.app.stage.pivot.x) * ease;
+        this.app.stage.pivot.y += (-targetY - this.app.stage.pivot.y) * ease;
 
-        // Y-Sorting
+        // Y-Sorting (Performance optimized)
         this.layers.entities.children.sort((a, b) => a.y - b.y);
+
+        // Update HUD
+        const loc = this.world.regions.find(r => Math.hypot(r.x - this.player.container.x, r.y - this.player.container.y) < r.radius);
+        if(loc) document.getElementById('location-name').innerText = loc.name;
     }
 }
 
-// Start Engine
 const engine = new AetheriaEngine();

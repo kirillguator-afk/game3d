@@ -1,5 +1,29 @@
-body { margin: 0; padding: 0; background: #000; }
-canvas { display: block; image-rendering: pixelated; }
-.font-pixel { font-family: 'Press Start 2P', cursive; }
+body { 
+    margin: 0; 
+    padding: 0; 
+    background: #050508; 
+    user-select: none;
+    cursor: crosshair;
+}
+canvas { 
+    display: block; 
+    image-rendering: pixelated; 
+}
+.font-pixel { 
+    font-family: 'Press Start 2P', cursive; 
+    line-height: 1.5;
+}
 #chat::-webkit-scrollbar { width: 4px; }
-#chat::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+#chat::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.animate-spin-slow {
+    animation: spin-slow 20s linear infinite;
+}
+
+input::placeholder {
+    color: rgba(255,255,255,0.2);
+}
