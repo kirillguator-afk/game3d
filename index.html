@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aetheria Online | Kingdom Expansion</title>
+    <title>Aetheria: Age of Magic</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
     <link rel="stylesheet" href="styles.css">
@@ -14,73 +14,76 @@
 
     <!-- UI Overlay -->
     <div id="hud" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 z-50">
+        <!-- TOP: Player & Status -->
         <div class="flex justify-between items-start pointer-events-auto">
-            <!-- Player Plate -->
-            <div class="flex gap-4 items-center bg-black/80 backdrop-blur-md p-4 rounded-2xl border-2 border-white/10 shadow-[0_0_20px_rgba(0,0,0,0.5)]">
+            <div class="flex gap-4 items-center bg-black/80 backdrop-blur-md p-4 rounded-2xl border-2 border-indigo-500/50">
                 <div class="relative">
-                    <div class="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center border-2 border-white/30 rotate-3">
-                        <span class="text-white font-pixel text-2xl -rotate-3">N</span>
+                    <div id="player-avatar" class="w-16 h-16 bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl flex items-center justify-center border-2 border-white/30 shadow-lg">
+                        <span class="text-white font-pixel text-2xl">N</span>
                     </div>
-                    <div class="absolute -bottom-2 -right-2 bg-yellow-500 text-black font-pixel text-[8px] px-2 py-1 rounded border border-black">LV.42</div>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <span class="text-white font-pixel text-[12px] tracking-widest">NEXUS_PRIME</span>
-                    <div class="flex flex-col gap-1">
-                        <div class="w-48 h-4 bg-gray-900 rounded-full border border-white/10 overflow-hidden p-[2px]">
-                            <div class="h-full bg-gradient-to-r from-red-600 to-orange-500 rounded-full w-[85%] shadow-[0_0_10px_red]"></div>
-                        </div>
-                        <div class="w-40 h-3 bg-gray-900 rounded-full border border-white/10 overflow-hidden p-[2px]">
-                            <div class="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full w-[60%] shadow-[0_0_10px_blue]"></div>
-                        </div>
+                    <span class="text-white font-pixel text-[12px] flex items-center gap-2">
+                        NEXUS_PRIME 
+                        <span class="text-indigo-400 text-[8px]">[MAGE]</span>
+                    </span>
+                    <div class="w-56 h-4 bg-gray-900 rounded-full border border-white/10 p-[2px] relative overflow-hidden">
+                        <div id="hp-bar" class="h-full bg-gradient-to-r from-red-600 to-rose-500 rounded-full transition-all duration-300 w-full"></div>
+                        <span class="absolute inset-0 flex justify-center items-center text-[8px] font-pixel text-white">HP: 100/100</span>
+                    </div>
+                    <div class="w-48 h-3 bg-gray-900 rounded-full border border-white/10 p-[2px] relative overflow-hidden">
+                        <div id="mp-bar" class="h-full bg-gradient-to-r from-blue-600 to-cyan-400 rounded-full transition-all duration-300 w-full"></div>
+                        <span class="absolute inset-0 flex justify-center items-center text-[8px] font-pixel text-white">MP: 50/50</span>
                     </div>
                 </div>
             </div>
             
-            <!-- Minimap & Location -->
-            <div class="flex flex-col items-end gap-3">
-                <div class="bg-black/80 backdrop-blur-md px-6 py-3 rounded-2xl border-2 border-yellow-500/50 flex flex-col items-end">
-                    <span class="text-yellow-500 font-pixel text-[8px] uppercase mb-1">Current Region</span>
-                    <span id="location-name" class="text-white font-pixel text-[14px]">Royal Plaza</span>
-                </div>
-                <div class="w-32 h-32 bg-black/60 rounded-full border-4 border-white/10 overflow-hidden relative shadow-2xl">
-                    <div class="absolute inset-0 border-2 border-dashed border-white/5 animate-spin-slow"></div>
-                    <div class="absolute top-1/2 left-1/2 w-2 h-2 bg-white rounded-full -translate-x-1/2 -translate-y-1/2 shadow-[0_0_5px_white]"></div>
-                </div>
+            <!-- Quest Tracker -->
+            <div id="quest-log" class="bg-black/70 backdrop-blur-md p-4 rounded-xl border-l-4 border-yellow-500 max-w-[250px]">
+                <h3 class="text-yellow-500 font-pixel text-[10px] mb-2">ТЕКУЩИЙ КВЕСТ</h3>
+                <div id="quest-title" class="text-white font-bold text-xs mb-1">Первая Искра</div>
+                <div id="quest-desc" class="text-gray-400 text-[10px]">Убейте 5 Теневых Слизней на южных окраинах.</div>
+                <div id="quest-progress" class="mt-2 text-[9px] text-green-400 font-pixel">Прогресс: 0/5</div>
             </div>
         </div>
 
-        <!-- Chat & Controls -->
-        <div class="flex justify-between items-end pointer-events-auto">
-            <div class="w-96 flex flex-col gap-3">
-                <div id="chat" class="h-48 bg-black/60 backdrop-blur-xl rounded-2xl p-4 text-[12px] overflow-y-auto flex flex-col gap-2 border border-white/10 shadow-2xl">
-                    <div class="text-yellow-400 font-bold">[SYSTEM]: Добро пожаловать в Королевство Этерия.</div>
-                    <div class="text-blue-300"><span class="font-bold">Guard:</span> Дороги нынче небезопасны, путник.</div>
-                    <div class="text-purple-400"><span class="font-bold">Merchant:</span> Свежие зелья только у меня!</div>
-                    <div class="text-white/50 italic">Вы вошли в безопасную зону.</div>
+        <!-- BOTTOM: Action Bar & Skills -->
+        <div class="flex flex-col items-center gap-4 pointer-events-auto">
+            <div class="flex gap-3 bg-black/90 p-3 rounded-2xl border-2 border-white/10 backdrop-blur-xl mb-4">
+                <div id="skill-q" class="skill-slot group" data-key="Q">
+                    <div class="icon bg-orange-600 shadow-[0_0_15px_rgba(234,88,12,0.5)]">🔥</div>
+                    <span class="key">Q</span>
+                    <div class="cooldown-overlay"></div>
                 </div>
-                <div class="relative">
-                    <input type="text" placeholder="Напишите сообщение..." class="w-full bg-black/90 border-2 border-white/10 rounded-xl px-5 py-4 text-white text-xs outline-none focus:border-blue-500 transition-all shadow-xl">
-                    <div class="absolute right-4 top-1/2 -translate-y-1/2 text-[8px] text-white/30 font-pixel underline">ENTER</div>
+                <div id="skill-e" class="skill-slot group" data-key="E">
+                    <div class="icon bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]">⚡</div>
+                    <span class="key">E</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+                <div id="skill-r" class="skill-slot group" data-key="R">
+                    <div class="icon bg-purple-600 shadow-[0_0_15px_rgba(147,51,234,0.5)]">🔯</div>
+                    <span class="key">R</span>
+                    <div class="cooldown-overlay"></div>
+                </div>
+                <div id="skill-space" class="skill-slot group w-24" data-key="SPACE">
+                    <div class="icon bg-emerald-500">DASH</div>
+                    <span class="key">_</span>
+                    <div class="cooldown-overlay"></div>
                 </div>
             </div>
-
-            <!-- Action Bar -->
-            <div class="flex gap-2 bg-black/80 p-2 rounded-2xl border border-white/10 backdrop-blur-md mb-2">
-                <div class="w-12 h-12 bg-gray-800 rounded-xl border border-white/20 flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
-                    <div class="w-6 h-6 bg-red-500 rounded-sm"></div>
+            
+            <!-- Chat -->
+            <div class="w-full max-w-lg">
+                <div id="chat" class="h-32 bg-black/40 backdrop-blur-md rounded-t-xl p-3 text-[11px] overflow-y-auto flex flex-col gap-1 border-x border-t border-white/10">
+                    <div class="text-indigo-400">[SYSTEM] Добро пожаловать, Маг Этерии! Используйте Q для атаки.</div>
                 </div>
-                <div class="w-12 h-12 bg-gray-800 rounded-xl border border-white/20 flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
-                    <div class="w-6 h-6 bg-blue-500 rounded-sm"></div>
-                </div>
-                <div class="w-12 h-12 bg-gray-800 rounded-xl border border-white/20 flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
-                    <div class="w-6 h-6 bg-green-500 rounded-sm"></div>
-                </div>
-                <div class="w-12 h-12 bg-gray-800 rounded-xl border border-white/20 flex items-center justify-center hover:bg-blue-600 transition-colors cursor-pointer">
-                    <div class="w-6 h-6 bg-yellow-500 rounded-sm"></div>
-                </div>
+                <input type="text" placeholder="Нажмите ENTER для чата..." class="w-full bg-black/80 border-x border-b border-white/10 rounded-b-xl px-4 py-2 text-white text-xs outline-none focus:border-indigo-500">
             </div>
         </div>
     </div>
+
+    <!-- Screen Effects -->
+    <div id="damage-vignette" class="fixed inset-0 pointer-events-none shadow-[inset_0_0_100px_rgba(255,0,0,0)] transition-shadow duration-300 z-[100]"></div>
 
     <script src="js/controls.js"></script>
     <script src="js/entities.js"></script>

@@ -1,29 +1,62 @@
-body { 
-    margin: 0; 
-    padding: 0; 
-    background: #050508; 
-    user-select: none;
-    cursor: crosshair;
-}
-canvas { 
-    display: block; 
-    image-rendering: pixelated; 
-}
-.font-pixel { 
-    font-family: 'Press Start 2P', cursive; 
-    line-height: 1.5;
-}
-#chat::-webkit-scrollbar { width: 4px; }
-#chat::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+body { margin: 0; padding: 0; background: #000; font-family: 'Inter', sans-serif; user-select: none; }
+canvas { display: block; image-rendering: pixelated; }
+.font-pixel { font-family: 'Press Start 2P', cursive; }
 
-@keyframes spin-slow {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+.skill-slot {
+    position: relative;
+    width: 54px;
+    height: 54px;
+    cursor: pointer;
+    transition: transform 0.1s;
 }
-.animate-spin-slow {
-    animation: spin-slow 20s linear infinite;
+.skill-slot:active { transform: scale(0.9); }
+.skill-slot .icon {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    display: flex;
+    items-center;
+    justify-center;
+    font-size: 24px;
+    border: 2px solid rgba(255,255,255,0.2);
+}
+.skill-slot .key {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #000;
+    color: #fff;
+    font-size: 8px;
+    font-family: 'Press Start 2P';
+    padding: 2px 4px;
+    border: 1px solid #fff;
+    border-radius: 4px;
+}
+.cooldown-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 0%;
+    background: rgba(0,0,0,0.7);
+    border-radius: 10px;
+    transition: height 0.1s linear;
 }
 
-input::placeholder {
-    color: rgba(255,255,255,0.2);
+#chat::-webkit-scrollbar { width: 3px; }
+#chat::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 10px; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.damage-num {
+    position: absolute;
+    color: #ff4444;
+    font-family: 'Press Start 2P';
+    font-size: 10px;
+    pointer-events: none;
+    z-index: 1000;
+    text-shadow: 2px 2px #000;
 }
