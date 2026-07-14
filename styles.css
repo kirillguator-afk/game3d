@@ -1,42 +1,5 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    background-color: #000;
-    font-family: 'Inter', sans-serif;
-}
-
-.font-pixel {
-    font-family: 'Press Start 2P', cursive;
-}
-
-canvas {
-    image-rendering: pixelated;
-    image-rendering: crisp-edges;
-}
-
-/* Custom Scrollbar for Chat */
-#chat-box::-webkit-scrollbar {
-    width: 4px;
-}
-#chat-box::-webkit-scrollbar-track {
-    background: transparent;
-}
-#chat-box::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.1);
-    border-radius: 10px;
-}
-
-@keyframes float {
-    0% { transform: translateY(0px); }
-    50% { transform: translateY(-5px); }
-    100% { transform: translateY(0px); }
-}
-
-.entity-label {
-    text-shadow: 2px 2px 0px rgba(0,0,0,0.8);
-    animation: float 2s ease-in-out infinite;
-}
+body { margin: 0; padding: 0; background: #000; }
+canvas { display: block; image-rendering: pixelated; }
+.font-pixel { font-family: 'Press Start 2P', cursive; }
+#chat::-webkit-scrollbar { width: 4px; }
+#chat::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }

@@ -2,67 +2,77 @@ class AetheriaEngine {
     constructor() {
         this.app = new PIXI.Application({
             resizeTo: window,
-            backgroundColor: 0x0a0a0c,
+            backgroundColor: 0x0a0a0f,
             antialias: false,
-            hello: true
+            resolution: window.devicePixelRatio || 1
         });
         document.getElementById('game-view').appendChild(this.app.view);
-        
-        // Settings
         PIXI.BaseTexture.defaultOptions.scaleMode = PIXI.SCALE_MODES.NEAREST;
-        
+
         this.layers = {
-            background: new PIXI.Container(),
             world: new PIXI.Container(),
             entities: new PIXI.Container(),
-            lighting: new PIXI.Container(),
-            ui: new PIXI.Container()
+            lighting: new PIXI.Container()
         };
 
-        Object.values(this.layers).forEach(layer => this.app.stage.addChild(layer));
+        // Dark Overlay for lighting effect
+        this.ambientLight = new PIXI.Graphics();
+        this.ambientLight.beginFill(0x000000, 0.7);
+        this.ambientLight.drawRect(-5000, -5000, 10000, 10000);
+        this.ambientLight.endFill();
         
+        this.layers.lighting.blendMode = PIXI.BLEND_MODES.ADD;
+        this.layers.lighting.addChild(this.ambientLight); // This acts as base darkness
+
+        Object.values(this.layers).forEach(l => this.app.stage.addChild(l));
+
         this.init();
     }
 
-    async init() {
-        console.log("Initializing Aetheria Engine...");
-        
-        this.world = new WorldManager(this);
+    addLight(x, y, color, radius) {
+        const light = new PIXI.Graphics();
+        const blur = new PIXI.BlurFilter(30);
+        light.beginFill(color, 0.3);
+        light.drawCircle(0, 0, 60 * radius);
+        light.endFill();
+        light.filters = [blur];
+        light.position.set(x, y);
+        this.layers.lighting.addChild(light);
+        return light;
+    }
+
+    init() {
         this.controls = new ControlsManager();
+        this.world = new WorldManager(this);
         
-        // Create Local Player
-        this.player = new Player(this, "Nexus_Prime", 0x00ff88);
+        this.player = new Player(this, "NEXUS_PRIME", 0x3366ff);
         this.layers.entities.addChild(this.player.container);
-        
-        // Fake Players (MMO Sim)
-        this.otherPlayers = [];
-        for(let i=0; i<5; i++) {
-            const p = new RemotePlayer(this, `Adventurer_${i}`, Math.random() * 0xffffff);
-            p.container.position.set(Math.random() * 800, Math.random() * 600);
-            this.layers.entities.addChild(p.container);
-            this.otherPlayers.push(p);
-        }
+
+        this.npcs = [
+            new Npc(this, "Elder Kaelen", -120, -50),
+            new Npc(this, "Merchant", 100, 80)
+        ];
+        this.npcs.forEach(n => this.layers.entities.addChild(n.container));
 
         this.app.ticker.add((delta) => this.update(delta));
     }
 
     update(delta) {
         this.player.update(this.controls, delta);
-        
-        // Sorting entities by Y for depth
-        this.layers.entities.children.sort((a, b) => a.y - b.y);
-        
-        // Camera Follow
+        this.npcs.forEach(n => n.update());
+
+        // Camera Lerp
+        const lerp = 0.1;
         const targetX = -this.player.container.x + window.innerWidth / 2;
         const targetY = -this.player.container.y + window.innerHeight / 2;
         
-        this.layers.world.position.set(targetX, targetY);
-        this.layers.entities.position.set(targetX, targetY);
-        this.layers.background.position.set(targetX * 0.2, targetY * 0.2); // Parallax
-        
-        // Simulated Network Update
-        this.otherPlayers.forEach(p => p.update(delta));
+        this.app.stage.pivot.x += (-targetX - this.app.stage.pivot.x) * lerp;
+        this.app.stage.pivot.y += (-targetY - this.app.stage.pivot.y) * lerp;
+
+        // Y-Sorting
+        this.layers.entities.children.sort((a, b) => a.y - b.y);
     }
 }
 
+// Start Engine
 const engine = new AetheriaEngine();

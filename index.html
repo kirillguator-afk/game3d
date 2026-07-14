@@ -3,55 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aetheria Online | Pixel MMO</title>
+    <title>Aetheria Online | Origin Plaza</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
     <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
-<body class="bg-[#0a0a0c] overflow-hidden">
-    <!-- Game Canvas -->
+<body class="bg-black overflow-hidden">
     <div id="game-view" class="absolute inset-0"></div>
 
-    <!-- MMORPG UI HUD -->
-    <div id="hud" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-6">
-        <!-- Top Bar: Player Stats -->
+    <!-- UI Overlay -->
+    <div id="hud" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-6 z-50">
         <div class="flex justify-between items-start pointer-events-auto">
-            <div class="flex gap-4 items-center bg-black/40 backdrop-blur-md p-2 pr-6 rounded-lg border-l-4 border-red-500">
-                <div class="w-12 h-12 bg-gray-800 rounded border-2 border-white/20 overflow-hidden">
-                    <img src="https://api.dicebear.com/7.x/pixel-art/svg?seed=Felix" alt="Avatar">
+            <div class="flex gap-4 items-center bg-black/70 backdrop-blur-md p-3 rounded-xl border border-white/20">
+                <div class="w-12 h-12 bg-indigo-600 rounded-lg flex items-center justify-center border-2 border-white/30">
+                    <span class="text-white font-pixel text-lg">P</span>
                 </div>
-                <div>
-                    <div class="text-[10px] text-white/50 font-bold uppercase tracking-tighter">Level 42 Arcanist</div>
-                    <div class="text-white font-pixel text-xs">Nexus_Prime</div>
-                    <div class="w-32 h-2 bg-gray-900 mt-1 rounded-full overflow-hidden border border-white/10">
-                        <div class="h-full bg-gradient-to-r from-red-600 to-orange-500 w-[80%]"></div>
+                <div class="flex flex-col">
+                    <span class="text-white font-pixel text-[10px]">NEXUS_PRIME</span>
+                    <div class="w-40 h-3 bg-gray-800 rounded-full mt-1 border border-white/10 overflow-hidden">
+                        <div class="h-full bg-red-600 w-[90%] shadow-[0_0_8px_red]"></div>
                     </div>
                 </div>
             </div>
-
-            <div class="bg-black/40 backdrop-blur-md p-3 rounded-lg border border-white/10">
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    <span class="text-[10px] text-white font-bold uppercase tracking-widest">Server: EU-CENTRAL-1</span>
-                </div>
+            
+            <div class="bg-black/70 px-4 py-2 rounded-full border border-green-500/50">
+                <span class="text-green-400 font-bold text-xs animate-pulse">SERVER: STABLE</span>
             </div>
         </div>
 
-        <!-- Chat System -->
-        <div class="flex flex-col gap-2 w-80 pointer-events-auto">
-            <div id="chat-box" class="h-40 bg-black/30 backdrop-blur-sm rounded-lg p-3 overflow-y-auto flex flex-col gap-1 border border-white/5 text-[11px]">
-                <div class="text-blue-400 font-bold">[Global] System: Welcome to Aetheria Online!</div>
-                <div class="text-purple-400"><span class="font-bold">Admin:</span> New boss spawned at Crystal Lake!</div>
-                <div class="text-white"><span class="font-bold text-gray-400">Player_1:</span> Anyone for dungeon?</div>
+        <div class="w-80 flex flex-col gap-2 pointer-events-auto">
+            <div id="chat" class="h-40 bg-black/50 backdrop-blur-sm rounded-lg p-3 text-[11px] overflow-y-auto flex flex-col gap-1 border border-white/10">
+                <div class="text-yellow-400">[System]: Вы вошли в Origin Plaza.</div>
+                <div class="text-blue-300 font-bold">[World] Player_X: Помогите с квестом!</div>
             </div>
-            <input type="text" placeholder="Press Enter to chat..." class="bg-black/60 border border-white/10 rounded-lg px-4 py-2 text-white text-xs outline-none focus:border-blue-500/50 transition-all">
+            <input type="text" placeholder="Сообщение..." class="bg-black/80 border border-white/20 rounded px-3 py-2 text-white text-xs outline-none focus:border-blue-500">
         </div>
     </div>
 
-    <script src="js/world.js"></script>
-    <script src="js/entities.js"></script>
+    <!-- Scripts in specific order -->
     <script src="js/controls.js"></script>
+    <script src="js/entities.js"></script>
+    <script src="js/world.js"></script>
     <script src="js/engine.js"></script>
 </body>
 </html>

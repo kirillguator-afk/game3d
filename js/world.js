@@ -2,43 +2,57 @@ class WorldManager {
     constructor(engine) {
         this.engine = engine;
         this.tileSize = 32;
-        this.generateMap();
+        this.init();
     }
 
-    generateMap() {
-        const graphics = new PIXI.Graphics();
+    init() {
+        const floor = new PIXI.Graphics();
         
-        // Draw Grass Tiles
-        for(let x = -50; x < 50; x++) {
-            for(let y = -50; y < 50; y++) {
-                const isDark = (x + y) % 2 === 0;
-                graphics.beginFill(isDark ? 0x1a2a1a : 0x1d2d1d);
-                graphics.drawRect(x * this.tileSize, y * this.tileSize, this.tileSize, this.tileSize);
-                graphics.endFill();
-            }
+        // Background Grass
+        floor.beginFill(0x1a261a);
+        floor.drawRect(-2000, -2000, 4000, 4000);
+        floor.endFill();
+
+        // Main Plaza
+        floor.beginFill(0x2d2d33);
+        floor.drawCircle(0, 0, 200);
+        floor.endFill();
+
+        // Roads
+        floor.beginFill(0x2d2d33);
+        floor.drawRect(-50, -1000, 100, 2000);
+        floor.drawRect(-1000, -50, 2000, 100);
+        floor.endFill();
+
+        // Details (Stone bricks pattern)
+        floor.lineStyle(1, 0x1a1a1f, 0.5);
+        for(let i = 0; i < 5; i++) {
+            floor.drawCircle(0, 0, 40 * i);
         }
 
-        // Add some "Pixel Art" structures
-        for(let i=0; i<20; i++) {
-            this.drawStone(graphics, Math.random() * 2000 - 1000, Math.random() * 2000 - 1000);
-        }
+        this.engine.layers.world.addChild(floor);
 
-        this.engine.layers.world.addChild(graphics);
-        
-        // Parallax Stars/Dust
-        const bg = new PIXI.Graphics();
-        for(let i=0; i<100; i++) {
-            bg.beginFill(0x333344);
-            bg.drawCircle(Math.random() * 2000, Math.random() * 2000, 1 + Math.random() * 2);
-        }
-        this.engine.layers.background.addChild(bg);
+        // Props
+        this.spawnProps();
     }
 
-    drawStone(g, x, y) {
-        g.beginFill(0x444455);
-        g.drawRect(x, y, 64, 48);
-        g.beginFill(0x222233);
-        g.drawRect(x, y + 40, 64, 8); // Shadow
-        g.endFill();
+    spawnProps() {
+        // Circle of Pillars
+        for (let i = 0; i < 12; i++) {
+            const angle = (i / 12) * Math.PI * 2;
+            const x = Math.cos(angle) * 180;
+            const y = Math.sin(angle) * 180;
+            
+            const pillar = new Prop(this.engine, 'pillar', x, y);
+            this.engine.layers.entities.addChild(pillar.container);
+            
+            // Strong Orange Lights for torches
+            this.engine.addLight(x, y - 50, 0xff8822, 1.2);
+        }
+
+        // Center Altar
+        const altar = new Prop(this.engine, 'altar', 0, 0);
+        this.engine.layers.entities.addChild(altar.container);
+        this.engine.addLight(0, -10, 0x00ffff, 1.5);
     }
 }
